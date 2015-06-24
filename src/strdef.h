@@ -68,21 +68,21 @@ unsigned short Command;//Command
 unsigned short SendType;//Command data type designation
 unsigned short RecvType;//Monitor data type designation
 //////////// Command or monitor data type ///
-#define MXT_TYP_NULL//0No data
+#define MXT_TYP_NULL 0//0No data
 //For the command and monitor ////////////////////
 #define MXT_TYP_POSE 1//1XYZ data
 #define MXT_TYP_JOINT 2//2Joint data
 #define MXT_TYP_PULSE 3//3pulse data
 ///////////// For position related monitor ///
-#define MXT_TYP_FPOSE// 4XYZ data (after filter process)
-#define MXT_TYP_FJOINT// 5Joint data (after filter process)
-#define MXT_TYP_FPULSE// 6Pulse data (after filter process)
-#define MXT_TYP_FB_POSE// 7XYZ data (Encoder feedback value)
-#define MXT_TYP_FB_JOINT// 8Joint data (Encoder feedback value)
-#define MXT_TYP_FB_PULSE//9 Pulse data (Encoder feedback value)
+#define MXT_TYP_FPOSE 4// 4XYZ data (after filter process)
+#define MXT_TYP_FJOINT 5// 5Joint data (after filter process)
+#define MXT_TYP_FPULSE 6// 6Pulse data (after filter process)
+#define MXT_TYP_FB_POSE 7// 7XYZ data (Encoder feedback value)
+#define MXT_TYP_FB_JOINT 8// 8Joint data (Encoder feedback value)
+#define MXT_TYP_FB_PULSE 9//9 Pulse data (Encoder feedback value)
 //For current related monitors ////////////////////
-#define MXT_TYP_CMDCUR//10Electric current command
-#define MXT_TYP_FBKCUR//11Electric current feedback
+#define MXT_TYP_CMDCUR 10//10Electric current command
+#define MXT_TYP_FBKCUR 11//11Electric current feedback
 unsigned short reserve;// Reserved
 union rtdata {//Command data
 POSE pos;//XYZ type [mm/rad]
