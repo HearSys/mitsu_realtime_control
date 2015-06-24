@@ -37,10 +37,13 @@ if(dst_ip_address[0]==0) strcpy(dst_ip_address, "192.168.0.1");
 cout << " Input connection destination port No. (10000) -> ";
 
 cin.getline(msg, MAXBUFLEN);
+
 if(msg[0]!=0) port=atoi(msg);
 else port=10000;
+
 cout << " Use input/output signal?([Y] / [N])-> ";
 cin.getline(msg, MAXBUFLEN);
+
 if(msg[0]!=0 && (msg[0]=='Y' || msg[0]=='y')) {
 cout << "What is target? Input signal/output signal([I]nput / [O]utput)-> ";
 cin.getline(msg, MAXBUFLEN);
