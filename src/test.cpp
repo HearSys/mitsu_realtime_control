@@ -155,7 +155,7 @@ MXTsend.CCount = counter = 0;
 else {// Second and following times
 MXTsend.Command = MXT_CMD_MOVE;
 MXTsend.SendType = type;
-MXTsend.RecvType = type*_mon[0];
+MXTsend.RecvType = type_mon[0];
 MXTsend.RecvType1= type_mon[1];
 MXTsend.RecvType2= type_mon[2];
 MXTsend.RecvType3= type_mon[3];
@@ -260,7 +260,7 @@ memcpy(&MXTrecv, recvText, sizeof(MXTrecv));
 char str[10];
 if(MXTrecv.SendIOType==MXT_IO_IN)
 sprintf(str,"IN%04x", MXTrecv.IoData);
-elseif(MXTrecv.SendIOType==MXT_IO_OUT)
+else if(MXTrecv.SendIOType==MXT_IO_OUT)
 sprintf(str,"OT%04x", MXTrecv.IoData);
 else sprintf(str,"------");
 int DispType;
