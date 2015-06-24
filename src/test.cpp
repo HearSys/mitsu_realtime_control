@@ -45,35 +45,35 @@ cout << " Use input/output signal?([Y] / [N])-> ";
 cin.getline(msg, MAXBUFLEN);
 
 if(msg[0]!=0 && (msg[0]=='Y' || msg[0]=='y')) {
-cout << "What is target? Input signal/output signal([I]nput / [O]utput)-> ";
-cin.getline(msg, MAXBUFLEN);
-switch(msg[0]) {
-case 'O':
-    IOSendType = MXT_IO_OUT;// Set target to output signal
-case 'o':
-    IORecvType = MXT_IO_OUT;
-    break;
-case 'I':
-    IOSendType = MXT_IO_NULL;// Set target to input signal
-case 'i':
-    IORecvType = MXT_IO_IN;
-default:
-    break;
-}
-cout << " Input head bit No. (0 to 32767)-> ";
-cin.getline(msg, MAXBUFLEN);
-if(msg[0]!=0)IOBitTop = atoi(msg);
-else IOBitTop = 0;
-if(IOSendType==MXT_IO_OUT) { // Only for output signal
-cout << "Input bit mask pattern for output as hexadecimal (0000 to FFFF)-> ";
-cin.getline(msg, MAXBUFLEN);
-if(msg[0]!=0) sscanf(msg,"%4x",&IOBitMask);
-else IOBitMask = 0;
-cout << "Input bit data for output as hexadecimal (0000 to FFFF)-> ";
-cin.getline(msg, MAXBUFLEN);
-if(msg[0]!=0) sscanf(msg,"%4x",&IOBitData);
-else IOBitData = 0;
-}
+    cout << "What is target? Input signal/output signal([I]nput / [O]utput)-> ";
+    cin.getline(msg, MAXBUFLEN);
+    switch(msg[0]) {
+    case 'O':
+        IOSendType = MXT_IO_OUT;// Set target to output signal
+    case 'o':
+        IORecvType = MXT_IO_OUT;
+        break;
+    case 'I':
+        IOSendType = MXT_IO_NULL;// Set target to input signal
+    case 'i':
+        IORecvType = MXT_IO_IN;
+    default:
+        break;
+    }
+    cout << " Input head bit No. (0 to 32767)-> ";
+    cin.getline(msg, MAXBUFLEN);
+    if(msg[0]!=0)IOBitTop = atoi(msg);
+    else IOBitTop = 0;
+    if(IOSendType==MXT_IO_OUT) { // Only for output signal
+        cout << "Input bit mask pattern for output as hexadecimal (0000 to FFFF)-> ";
+        cin.getline(msg, MAXBUFLEN);
+        if(msg[0]!=0) sscanf(msg,"%4x",&IOBitMask);
+        else IOBitMask = 0;
+        cout << "Input bit data for output as hexadecimal (0000 to FFFF)-> ";
+        cin.getline(msg, MAXBUFLEN);
+        if(msg[0]!=0) sscanf(msg,"%4x",&IOBitData);
+        else IOBitData = 0;
+    }
 }
 cout <<" --- Input the data type of command. --- \n";
 cout <<"[0: None / 1: XYZ / 2:JOINT / 3: PULSE]\n";
