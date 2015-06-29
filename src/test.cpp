@@ -119,18 +119,24 @@ if (status != 0)
 // IP address, port, etc., setting
 memset(&destSockAddr, 0, sizeof(destSockAddr));
 destAddr=inet_addr(dst_ip_address);
-//inet_addr converts a string containing an IPv4 dotted-decimal address into a proper address for the IN_ADDR structure.
+    //inet_addr converts a string containing an IPv4 dotted-decimal address into a proper address for the IN_ADDR structure.
 memcpy(&destSockAddr.sin_addr, &destAddr, sizeof(destAddr));
 destSockAddr.sin_port=htons(port);
+    //The htons function converts a u_short from host to TCP/IP network byte order (which is big-endian).
+    //The htons function does not require that the Winsock DLL has previously been loaded with a successful
+    //call to the WSAStartup function.
 destSockAddr.sin_family=AF_INET;
 // Socket creation
 destSocket=socket(AF_INET, SOCK_DGRAM, 0);
+    //AF_INET Address family internet fuer IPvN4, fuer IPvN6 ist AF_INET6
+    //Artsocket SOCK_DGRAM: UDP Methode, für TCP Methode benutzt SOCK_STREAM,
+    //0:protocol art auf socket (SOCK_DGREAM :protocol IPPROTO_UDP,SOCK_STREAM:IPPROTO_IP,SOCKRAW:IPPROTO_RAW oder IPPROTO_ICMP)
 
-if (destSocket == INVALID_SOCKET) {
+if (destSocket == INVALID_SOCKET) {//wenn "Socket accept" erfolgreich return socket damit kommunizeieren mit client,wenn nicht invalid socket
     cerr << "ERROR: socket unsuccessful" << endl;
     status=WSACleanup();
-    if (status == SOCKET_ERROR)
-    cerr << "ERROR: WSACleanup unsuccessful" << endl;
+    if (status == SOCKET_ERROR)//wenn connect socket erfolgreich 0, nicht socket error
+        cerr << "ERROR: WSACleanup unsuccessful" << endl;
     return(1);
     }
 
@@ -147,8 +153,9 @@ int ch;
 float delta=(float)0.0;
 long ratio=1;
 int retry;
+
 fd_set SockSet;// Socket group used with select
-timeval sTimeOut;// For timeout setting
+timeval sTimeOut;// For timeout setting with seconds or microsecoonds
 memset(&MXTsend, 0, sizeof(MXTsend));
 memset(&jnt_now, 0, sizeof(JOINT));
 memset(&pos_now, 0, sizeof(POSE));
@@ -248,15 +255,27 @@ while(loop) {
         }
 
     numsnt=sendto(destSocket, sendText, sizeof(MXTCMD), NO_FLAGS_SET
-    , (LPSOCKADDR) &destSockAddr, sizeof(destSockAddr));
-
+        , (LPSOCKADDR) &destSockAddr, sizeof(destSockAddr));
+        //s [in]
+        //A descriptor identifying a (possibly connected) socket.
+        //buf [in]
+        //A pointer to a buffer containing the data to be transmitted.
+        //len [in]
+        //The length, in bytes, of the data pointed to by the buf parameter.
+        //flags [in]
+        //A set of flags that specify the way in which the call is made.
+        //to [in]
+        //An optional pointer to a sockaddr structure that contains the address of the target socket.
+        //tolen [in]
+        //The size, in bytes, of the address pointed to by the to parameter.
     if (numsnt != sizeof(MXTCMD)) {
         cerr << "ERROR: sendto unsuccessful" << endl;
         status=closesocket(destSocket);
 
         if (status == SOCKET_ERROR)
             cerr << "ERROR: closesocket unsuccessful" << endl;
-            status=WSACleanup();
+
+        status=WSACleanup();
 
         if (status == SOCKET_ERROR)
             cerr << "ERROR: WSACleanup unsuccessful" << endl;
@@ -270,29 +289,69 @@ while(loop) {
     while(retry) {
         FD_ZERO(&SockSet);// SockSet initialization
         FD_SET(destSocket, &SockSet);// Socket registration
-        sTimeOut.tv_sec = 1;// Transmission timeout setting (sec)
+        sTimeOut.tv_sec = 1;// Transmission timeout setting (sec) choose the time valuation seconds true;microseconds no with 0
         sTimeOut.tv_usec = 0;// (u sec)
         status = select(0, &SockSet, (fd_set *)NULL, (fd_set *)NULL, &sTimeOut);
+            //int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+            //If the exceptfds argument is not NULL, it points to an object of type fd_set that on input specifies the file
+            //descriptors to be checked for error conditions pending, and on output indicates which file descriptors have
+            //error conditions pending
+            //PARAMETERS
+            //nfds
+            //Specifies how many descriptors should be examined. The descriptors checked are 0 through nfds-1.
+
+            //readfds
+            //Points to a bit mask that specifies the file descriptors to check for reading.
+
+            //writefds
+            //Points to a bit mask that specifies the file descriptors to check for writing.
+
+            //exceptfds
+            //Points to a bit mask that specifies the file descriptors to check for exception conditions.
+
+            //timeout
+            //When non-NULL, contains the address of a struct timeval that specifies how long to wait for the required condition before returning to the caller. When NULL, forces the call to block until a descriptor becomes ready or until a signal occurs
+            //FD_SET(int fd, fd_set *fdset); fd=file desriptor
+            //FD_CLR(int fd, fd_set *fdset);
+            //FD_ISSET(int fd, fd_set *fdset);
+            //FD_ZERO(fd_set *fdset)
 
         if(status == SOCKET_ERROR) {
             return(1);
             }
         // If it receives by the time-out
         if((status > 0) && (FD_ISSET(destSocket,&SockSet) != 0)) {
-            numrcv=recvfrom(destSocket, recvText, MAXBUFLEN, NO_FLAGS_SET, NULL, NULL);
+            numrcv=recvfrom(destSocket, recvText, MAXBUFLEN, NO_FLAGS_SET, NULL, NULL);//art der sending :0 normal
+                //s [in]
+                //A descriptor identifying a bound socket.
+                //buf [out]
+                //A buffer for the incoming data.
+                //len [in]
+                //The length, in bytes, of the buffer pointed to by the buf parameter.
+                //flags [in]
+                //A set of options that modify the behavior of the function call beyond the options specified for the associated socket. See the Remarks below for more details.
+                //from [out]
+                //An optional pointer to a buffer in a sockaddr structure that will hold the source address upon return.
+                //fromlen [in, out, optional]
+                //An optional pointer to the size, in bytes, of the buffer pointed to by the from parameter.
             if (numrcv == SOCKET_ERROR) {
+                cerr<< "ERROR: recvfrom unsuccessful" << endl;
+                status=closesocket(destSocket);
 
-            cerr<< "ERROR: recvfrom unsuccessful" << endl;
-            status=closesocket(destSocket);
-            if (status == SOCKET_ERROR)
-            cerr << "ERROR: closesocket unsuccessful" << endl;
-            status=WSACleanup();
-            if (status == SOCKET_ERROR)
-            cerr << "ERROR: WSACleanup unsuccessful" << endl;
-            return(1);
-            }
+                if (status == SOCKET_ERROR)
+                    cerr << "ERROR: closesocket unsuccessful" << endl;
+
+                status=WSACleanup();
+
+                if (status == SOCKET_ERROR)
+                    cerr << "ERROR: WSACleanup unsuccessful" << endl;
+
+                return(1);
+                }
+
             memcpy(&MXTrecv, recvText, sizeof(MXTrecv));
             char str[10];
+
             if(MXTrecv.SendIOType==MXT_IO_IN)
                 sprintf(str,"IN%04x", MXTrecv.IoData);
             else if(MXTrecv.SendIOType==MXT_IO_OUT)
@@ -303,38 +362,38 @@ while(loop) {
             void *DispData;
 
             switch(disp_data) {
+                case 0:
+                    DispType = MXTrecv.RecvType;
+                    DispData = &MXTrecv.dat;
+                    break;
 
-            case 0:
-                DispType = MXTrecv.RecvType;
-                DispData = &MXTrecv.dat;
-                break;
+                case 1:
+                    DispType = MXTrecv.RecvType1;
+                    DispData = &MXTrecv.dat1;
+                    break;
 
-            case 1:
-                DispType = MXTrecv.RecvType1;
-                DispData = &MXTrecv.dat1;
-                break;
+                case 2:
+                    DispType = MXTrecv.RecvType2;
+                    DispData = &MXTrecv.dat2;
+                    break;
 
-            case 2:
-                DispType = MXTrecv.RecvType2;
-                DispData = &MXTrecv.dat2;
-                break;
+                case 3:
+                    DispType = MXTrecv.RecvType3;
+                    DispData = &MXTrecv.dat3;
+                    break;
 
-            case 3:
-                DispType = MXTrecv.RecvType3;
-                DispData = &MXTrecv.dat3;
-                break;
+                default:
+                    break;
+                }
 
-            default:
-                break;
-            }
             switch(DispType) {
                 case MXT_TYP_JOINT:
                 case MXT_TYP_FJOINT:
                 case MXT_TYP_FB_JOINT:
                     if(loop==1) {
-                    memcpy(&jnt_now, DispData, sizeof(JOINT));
-                    loop = 2;
-                    }
+                        memcpy(&jnt_now, DispData, sizeof(JOINT));
+                        loop = 2;
+                        }
                     if(disp) {
                         JOINT *j=(JOINT*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(JOINT)=%d\n ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f (%s)"
@@ -354,9 +413,9 @@ while(loop) {
                     if(disp) {
                         POSE *p=(POSE*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(POSE)=%d\n %7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f, %04x,%04x (%s)"
-                        ,MXTrecv.CCount,MXTrecv.TCount,DispType
-                        ,p->w.x, p->w.y, p->w.z, p->w.a, p->w.b, p->w.c
-                        , p->sflg1, p->sflg2, str);
+                            ,MXTrecv.CCount,MXTrecv.TCount,DispType
+                            ,p->w.x, p->w.y, p->w.z, p->w.a, p->w.b, p->w.c
+                            , p->sflg1, p->sflg2, str);
                         cout << buf << endl;
                         }
                     break;
@@ -373,8 +432,8 @@ while(loop) {
                     if(disp) {
                         PULSE *l=(PULSE*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(PULSE/OTHER)=%d\n %ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld (%s)"
-                        ,MXTrecv.CCount,MXTrecv.TCount,DispType
-                        ,l->p1, l->p2, l->p3, l->p4, l->p5, l->p6, l->p7, l->p8, str);
+                            ,MXTrecv.CCount,MXTrecv.TCount,DispType
+                            ,l->p1, l->p2, l->p3, l->p4, l->p5, l->p6, l->p7, l->p8, str);
                         cout << buf << endl;
                         }
                     break;
