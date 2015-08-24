@@ -367,13 +367,13 @@ while(loop) {
 
             int DispType;
             void *DispData;
-
+            #ifdef VER_H7
             switch(disp_data) {
                 case 0:
                     DispType = MXTrecv.RecvType;
                     DispData = &MXTrecv.dat;
                     break;
-            #ifdef VER_H7
+
                 case 1:
                     DispType = MXTrecv.RecvType1;
                     DispData = &MXTrecv.dat1;
