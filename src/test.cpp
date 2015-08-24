@@ -373,7 +373,7 @@ while(loop) {
                     DispType = MXTrecv.RecvType;
                     DispData = &MXTrecv.dat;
                     break;
-
+            #ifdef VER_H7
                 case 1:
                     DispType = MXTrecv.RecvType1;
                     DispData = &MXTrecv.dat1;
@@ -392,7 +392,10 @@ while(loop) {
                 default:
                     break;
                 }
-
+            #else
+                DispType=MXTrecv.SendType;
+                DispData=&MXTrecv.dat;
+            #endif // Distype
             switch(DispType) {
                 case MXT_TYP_JOINT:
                 case MXT_TYP_FJOINT:
