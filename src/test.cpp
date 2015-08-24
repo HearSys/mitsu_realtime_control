@@ -37,7 +37,7 @@ cin.getline(dst_ip_address, MAXBUFLEN);
 
 if(dst_ip_address[0]==0) strcpy(dst_ip_address, "192.168.0.1");
 
-cout << " Input connection destination port No. (10000) -> ";
+cout << " Input connection destination port No. (10000) -> (RC:10000,pc com1:10010 ip .0.2,usw)";
 cin.getline(msg, MAXBUFLEN);
 
 if(msg[0]!=0) port=atoi(msg);
