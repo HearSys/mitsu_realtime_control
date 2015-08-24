@@ -212,9 +212,10 @@ while(loop) {
     // Keyboard input
     // [Enter]=End / [d]= Display the monitor data, or none / [0/1/2/3]= Changeof monitor data display
     // [z/x]=Increment/decrement first command data transmitted by the delta amount
-    // [c]=Zentrum 0 for jointspace or 0 for taskspace (EE im Ursprung)
-    while(kbhit()!=0) {//test wenn eine Taste gedrueckt wird conio.h
-        ch=getch();
+    // [c]=Zentrum 0 for jointspace or 0 for taskspace (EE im Ursprung) hi
+    while (kbhit()==0) {//test wenn eine Taste gedrueckt wird conio.h)(key board hit)
+        ch=getchar();
+        cout <<endl;
         switch(ch)
         {
             case 0x0d:
