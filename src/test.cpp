@@ -8,7 +8,7 @@
 #define MAXBUFLEN 51
 #include<iostream>
 #include<winsock2.h>
-using namespace std;//link with a library use syntax bsp. #pragma comment(lib, "ws2_32.lib")
+using namespace std;//link with a library use syntax bsp. #pragma comment(lib, "ws2_32.lib","ws2_32.a")
 
 INT main(VOID)
 {
