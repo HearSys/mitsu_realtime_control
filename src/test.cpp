@@ -131,7 +131,7 @@ destSockAddr.sin_family=AF_INET;
 destSocket=socket(AF_INET, SOCK_DGRAM, 0);
     //AF_INET Address family internet fuer IPvN4, fuer IPvN6 ist AF_INET6
     //Artsocket SOCK_DGRAM: UDP Methode, für TCP Methode benutzt SOCK_STREAM,
-    //0:protocol art auf socket (SOCK_DGREAM :protocol IPPROTO_UDP,SOCK_STREAM:IPPROTO_IP,SOCKRAW:IPPROTO_RAW oder IPPROTO_ICMP)
+    //0:protocol art auf socket (SOCK_DGRAM :protocol IPPROTO_UDP,SOCK_STREAM:IPPROTO_IP,SOCKRAW:IPPROTO_RAW oder IPPROTO_ICMP)
 
 if (destSocket == INVALID_SOCKET) {//wenn "Socket accept" erfolgreich return socket damit kommunizeieren mit client,wenn nicht invalid socket
     cerr << "ERROR: socket unsuccessful" << endl;
