@@ -121,6 +121,7 @@ memset(&destSockAddr, 0, sizeof(destSockAddr));
 destAddr=inet_addr(dst_ip_address);
     //inet_addr converts a string containing an IPv4 dotted-decimal address into a proper address for the IN_ADDR structure.
 memcpy(&destSockAddr.sin_addr, &destAddr, sizeof(destAddr));
+//koppiert adress destaddr auf system in address von destsockaddress
 destSockAddr.sin_port=htons(port);
     //The htons function converts a u_short from host to TCP/IP network byte order (which is big-endian).
     //The htons function does not require that the Winsock DLL has previously been loaded with a successful
