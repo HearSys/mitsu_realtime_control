@@ -258,6 +258,11 @@ while(loop) {
 
     numsnt=sendto(destSocket, sendText, sizeof(MXTCMD), NO_FLAGS_SET
         , (LPSOCKADDR) &destSockAddr, sizeof(destSockAddr));
+        //no flags set for udp, tcp schon
+        //LPSOCKADDR A pointer to a socket address represented as a SOCKADDR structure.
+        //ssize_t sendto(int s, const void *buf, size_t len,
+        //       int flags, const struct sockaddr *to,
+        //       socklen_t tolen);
         //s [in]
         //A descriptor identifying a (possibly connected) socket.
         //buf [in]
