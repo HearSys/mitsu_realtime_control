@@ -64,6 +64,7 @@ if(msg[0]!=0 && (msg[0]=='Y' || msg[0]=='y')){
             break;
         }
     cout << " Input head bit No. (0 to 32767)-> ";
+    //Bit zahl noetig fuer wechseln des gesamte'message' zu integerzahl
     cin.getline(msg, MAXBUFLEN);
 
     if(msg[0]!=0)IOBitTop = atoi(msg);
@@ -71,6 +72,8 @@ if(msg[0]!=0 && (msg[0]=='Y' || msg[0]=='y')){
 
     if(IOSendType==MXT_IO_OUT) { // Only for output signal
         cout << "Input bit mask pattern for output as hexadecimal (0000 to FFFF)-> ";
+        //message beschreibung in Hexa dezimal system
+        //bitMask braucht man fuer transmission
         cin.getline(msg, MAXBUFLEN);
 
         if(msg[0]!=0) sscanf(msg,"%4x",&IOBitMask);
@@ -78,7 +81,7 @@ if(msg[0]!=0 && (msg[0]=='Y' || msg[0]=='y')){
 
         cout << "Input bit data for output as hexadecimal (0000 to FFFF)-> ";
         cin.getline(msg, MAXBUFLEN);
-
+        //message beschreibung fuer datasend von output in hexadecimal sys
         if(msg[0]!=0) sscanf(msg,"%4x",&IOBitData);
             else IOBitData = 0;
         }
@@ -213,12 +216,16 @@ while(loop) {
     // [Enter]=End / [d]= Display the monitor data, or none / [0/1/2/3]= Changeof monitor data display
     // [z/x]=Increment/decrement first command data transmitted by the delta amount
     // [c]=Zentrum 0 for jointspace or 0 for taskspace (EE im Ursprung) hi
-    while (kbhit()==0) {//test wenn eine Taste gedrueckt wird conio.h)(key board hit)
-        ch=getchar();
+    while (kbhit()==0&&loop!=0) {//test wenn eine Taste gedrueckt wird conio.h)(key board hit)
+            cout<< ":)";
+            cout<< ":D"<<endl;
+        ch=getch();//nur maximal ein zeichen geben kann.
+        //Au�erdem erzeugt getch() kein Echo auf der Konsole, d.H. der Benutzer
+        //sieht nicht was er eingibt (geeignet z.B. f�r kleine Spiele oder die Eingabe eines Passwortes)
         cout <<endl;
         switch(ch)
         {
-            case 0x0d:
+            case 0x0d://ascii return taste
                 MXTsend.Command = MXT_CMD_END;
                 loop = 0;
                 break;
@@ -239,7 +246,7 @@ while(loop) {
                 break;
 
             case 'd':
-                disp = ~disp;
+                disp =5;//wenn d gedrueckt wird disp=-1 da tilde bedeutet gegenwert von ursprung wert von disp
                 break;
 
             case '0': case '1': case '2': case '3'://change display data
@@ -251,8 +258,8 @@ while(loop) {
     memset(sendText, 0, MAXBUFLEN);
     memcpy(sendText, &MXTsend, sizeof(MXTsend));
 
-    if(disp){
-        sprintf(buf, "Send (%ld):",counter);
+    if(disp==5){//wenn true
+        sprintf(buf, "Send (%d):",counter);
         cout << buf << endl;
         }
 
@@ -404,7 +411,7 @@ while(loop) {
                         memcpy(&jnt_now, DispData, sizeof(JOINT));
                         loop = 2;
                         }
-                    if(disp) {
+                    if(disp==5) {
                         JOINT *j=(JOINT*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(JOINT)=%d\n ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f (%s)"
                         ,MXTrecv.CCount,MXTrecv.TCount,DispType
@@ -420,7 +427,7 @@ while(loop) {
                         memcpy(&pos_now, &MXTrecv.dat.pos, sizeof(POSE));
                         loop = 2;
                         }
-                    if(disp) {
+                    if(disp==5) {
                         POSE *p=(POSE*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(POSE)=%d\n %7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f, %04x,%04x (%s)"
                             ,MXTrecv.CCount,MXTrecv.TCount,DispType
