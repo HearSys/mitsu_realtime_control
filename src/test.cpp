@@ -1,3 +1,4 @@
+#include <winsock.h>
 #include <windows.h>
 #include <stdio.h>
 #include <conio.h>
@@ -5,9 +6,9 @@
 #include <math.h>
 #include "strdef.h"
 #define NO_FLAGS_SET 0
-#define MAXBUFLEN 51
+#define MAXBUFLEN 512
 #include<iostream>
-#include<winsock2.h>
+
 using namespace std;//link with a library use syntax bsp. #pragma comment(lib, "ws2_32.lib","ws2_32.a")
 
 INT main(VOID)
@@ -31,6 +32,8 @@ unsigned short IORecvType;// Reply input/output signal data designation
 unsigned short IOBitTop=0;
 unsigned short IOBitMask=0xffff;
 unsigned short IOBitData=0;
+int debug;
+//char debug[MAXBUFLEN];
 
 cout << " Input connection destination IP address (192.168.0.1) ->";
 cin.getline(dst_ip_address, MAXBUFLEN);
@@ -151,7 +154,7 @@ POSE pos_now;
 PULSE pls_now;
 unsigned long counter = 0;
 int loop = 1;
-int disp = 0;
+unsigned int disp = 0;
 int disp_data = 0;
 int ch;
 float delta=(float)0.0;
@@ -216,49 +219,52 @@ while(loop) {
     // [Enter]=End / [d]= Display the monitor data, or none / [0/1/2/3]= Changeof monitor data display
     // [z/x]=Increment/decrement first command data transmitted by the delta amount
     // [c]=Zentrum 0 for jointspace or 0 for taskspace (EE im Ursprung) hi
-    while (kbhit()==0&&loop!=0) {//test wenn eine Taste gedrueckt wird conio.h)(key board hit)
-            cout<< ":)";
-            cout<< ":D"<<endl;
-        ch=getch();//nur maximal ein zeichen geben kann.
-        //Au�erdem erzeugt getch() kein Echo auf der Konsole, d.H. der Benutzer
-        //sieht nicht was er eingibt (geeignet z.B. f�r kleine Spiele oder die Eingabe eines Passwortes)
-        cout <<endl;
-        switch(ch)
-        {
-            case 0x0d://ascii return taste
-                MXTsend.Command = MXT_CMD_END;
-                loop = 0;
-                break;
 
-            case 'Z':
-            case 'z':
-                delta += (float)0.1;
-                break;
+    ch = cin.get();
+    cout << "key pressed: " << ch << endl;
+    cout.flush();
+    switch(ch) {
+        case 'e':
+        //case 0x0d://ascii return taste
+            MXTsend.Command = MXT_CMD_END;
+            loop = 0;
+            break;
 
-            case 'X':
-            case 'x':
-                delta -= (float)0.1;
-                break;
+        case 'Z':
+        case 'z':
+            delta += (float)0.1;
 
-            case 'C':
-            case 'c':
-                delta = (float)0.0;
-                break;
+            cout << "z" << endl;
+            break;
 
-            case 'd':
-                disp =5;//wenn d gedrueckt wird disp=-1 da tilde bedeutet gegenwert von ursprung wert von disp
-                break;
+        case 'X':
+        case 'x':
+            delta -= (float)0.1;
+            break;
 
-            case '0': case '1': case '2': case '3'://change display data
-                disp_data = ch - '0';
-                break;
-        }
+        case 'C':
+        case 'c':
+            delta = (float)0.0;
+            break;
+
+        case 'd':
+            disp =~disp;//wenn d gedrueckt wird disp=-1 da tilde bedeutet gegenwert von ursprung wert von disp
+            cout<<disp;
+            break;
+
+        case '0': case '1': case '2': case '3'://change display data
+            disp_data = ch - '0';
+            break;
     }
+    cout << "out of while peek loop" << endl;
+
+    cout << "sizeof(MXTsend) = " << sizeof(MXTsend) << endl;
+    cout << "sizeof(sendText) = " << sizeof(sendText) << endl;
 
     memset(sendText, 0, MAXBUFLEN);
     memcpy(sendText, &MXTsend, sizeof(MXTsend));
 
-    if(disp==5){//wenn true
+    if(disp){//wenn true
         sprintf(buf, "Send (%d):",counter);
         cout << buf << endl;
         }
@@ -282,6 +288,8 @@ while(loop) {
         //An optional pointer to a sockaddr structure that contains the address of the target socket.
         //tolen [in]
         //The size, in bytes, of the address pointed to by the to parameter.
+
+    cout << "sent " << numsnt << " bytes:" << sendText << endl;
     if (numsnt != sizeof(MXTCMD)) {
         cerr << "ERROR: sendto unsuccessful" << endl;
         status=closesocket(destSocket);
@@ -303,7 +311,7 @@ while(loop) {
     while(retry) {
         FD_ZERO(&SockSet);// SockSet initialization
         FD_SET(destSocket, &SockSet);// Socket registration
-        sTimeOut.tv_sec = 1;// Transmission timeout setting (sec) choose the time valuation seconds true;microseconds no with 0
+        sTimeOut.tv_sec = 2;// Transmission timeout setting (sec) choose the time valuation seconds true;microseconds no with 0
         sTimeOut.tv_usec = 0;// (u sec)
         status = select(0, &SockSet, (fd_set *)NULL, (fd_set *)NULL, &sTimeOut);
             //int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
@@ -334,6 +342,8 @@ while(loop) {
             return(1);
             }
         // If it receives by the time-out
+        cout << "status=" << status << endl;
+
         if((status > 0) && (FD_ISSET(destSocket,&SockSet) != 0)) {
             numrcv=recvfrom(destSocket, recvText, MAXBUFLEN, NO_FLAGS_SET, NULL, NULL);//art der sending :0 normal
                 //s [in]
@@ -374,7 +384,7 @@ while(loop) {
 
             int DispType;
             void *DispData;
-            #ifdef VER_H7
+
             switch(disp_data) {
                 case 0:
                     DispType = MXTrecv.RecvType;
@@ -399,10 +409,7 @@ while(loop) {
                 default:
                     break;
                 }
-            #else
-                DispType=MXTrecv.SendType;
-                DispData=&MXTrecv.dat;
-            #endif // Distype
+
             switch(DispType) {
                 case MXT_TYP_JOINT:
                 case MXT_TYP_FJOINT:
@@ -411,7 +418,7 @@ while(loop) {
                         memcpy(&jnt_now, DispData, sizeof(JOINT));
                         loop = 2;
                         }
-                    if(disp==5) {
+                   if(disp) {
                         JOINT *j=(JOINT*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(JOINT)=%d\n ,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f (%s)"
                         ,MXTrecv.CCount,MXTrecv.TCount,DispType
@@ -427,7 +434,7 @@ while(loop) {
                         memcpy(&pos_now, &MXTrecv.dat.pos, sizeof(POSE));
                         loop = 2;
                         }
-                    if(disp==5) {
+                    if(disp) {
                         POSE *p=(POSE*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(POSE)=%d\n %7.2f,%7.2f,%7.2f,%7.2f,%7.2f,%7.2f, %04x,%04x (%s)"
                             ,MXTrecv.CCount,MXTrecv.TCount,DispType
@@ -449,9 +456,8 @@ while(loop) {
                     if(disp) {
                         PULSE *l=(PULSE*)DispData;
                         sprintf(buf, "Receive (%ld): TCount=%d Type(PULSE/OTHER)=%d\n %ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld (%s)"
-                            ,MXTrecv.CCount,MXTrecv.TCount,DispType
-                            ,l->p1, l->p2, l->p3, l->p4, l->p5, l->p6, l->p7, l->p8, str);
-                        cout << buf << endl;
+                            ,MXTrecv.CCount,MXTrecv.TCount,DispType,l->p1,l->p2,l->p3,l->p4,l->p5,l->p6,l->p7,l->p8,str);
+                          cout << buf << endl;
                         }
                     break;
 
@@ -461,7 +467,7 @@ while(loop) {
                     }
                     if(disp) {
                         sprintf(buf, "Receive (%ld): TCount=%d Type(NULL)=%d\n (%s)",MXTrecv.CCount,MXTrecv.TCount, DispType, str);
-                        cout << buf << endl;
+                       cout << buf << endl;
                     }
                     break;
 
@@ -482,7 +488,7 @@ while(loop) {
 } /* while(loop) */
 // End
 cout << "/// End /// ";
-sprintf(buf, "counter = %ld", counter);
+sprintf(buf, "counter = %lf", counter);
 cout << buf << endl;
 //Close socket
 status=closesocket(destSocket);

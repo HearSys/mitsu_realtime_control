@@ -11,6 +11,8 @@
 /*with each robot for details on each element. */
 /*************************************************************************/
 
+#define VER_H7
+
 typedef struct{
 float j1;//J1 axis angle (radian)
 float j2;//J2 axis angle (radian)
@@ -59,7 +61,7 @@ long p8;//Additional axis 2 (Motor 8 axis)
 /************************************************************/
 /*Real-time function communication data packet */
 /************************************************************/
-typedef struct enet_rtcmd_str {
+typedef struct enet_rtcmd_str {//ethernet realtime control structure
 unsigned short Command;//Command
 
 #define MXT_CMD_NULL 0//0Real-time external command invalid
